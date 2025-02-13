@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom, #6ec1e4, #396afc);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .weather-app {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Header Section */
+    .header {
+      margin-bottom: 20px;
+    }
+
+    .header input {
+      width: 70%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      margin-right: 5px;
+    }
+
+    .header button {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #1c77ff;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .header button:hover {
+      background-color: #145dbf;
+    }
+
+    /* Weather Information */
+    .weather-info {
+      margin-top: 20px;
+    }
+
+    .location h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .temperature h1 {
+      margin: 10px 0;
+      font-size: 48px;
+    }
+
+    .details p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="weather-app">
+    <header class="header">
+      <h1>Weather App</h1>
+      <input type="text" id="cityInput" placeholder="Enter city name">
+      <button id="searchButton">Search</button>
+    </header>
+
+    <main class="weather-info">
+      <div class="location">
+        <h2 id="cityName">City Name</h2>
+        <p id="date">Date</p>
+      </div>
+      <div class="temperature">
+        <h1 id="temp">--°C</h1>
+        <p id="condition">Condition</p>
+      </div>
+      <div class="details">
+        <p>Humidity: <span id="humidity">--%</span></p>
+        <p>Wind Speed: <span id="windSpeed">-- km/h</span></p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const apiKey = "7f9332acc29c3becfb7ef8cb31b75330";
+    const searchButton = document.getElementById("searchButton");
+    const cityInput = document.getElementById("cityInput");
+
+    const cityNameElement = document.getElementById("cityName");
+    const dateElement = document.getElementById("date");
+    const tempElement = document.getElementById("temp");
+    const conditionElement = document.getElementById("condition");
+    const humidityElement = document.getElementById("humidity");
+    const windSpeedElement = document.getElementById("windSpeed");
+
+    // Function to fetch weather data
+    async function fetchWeather(city) {
+      try {
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error("City not found");
+        }
+
+        const data = await response.json();
+        updateUI(data);
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    // Function to update UI with fetched data
+    function updateUI(data) {
+      const { name, sys, main, weather, wind } = data;
+      const currentDate = new Date().toLocaleDateString();
+
+      cityNameElement.textContent = `${name}, ${sys.country}`;
+      dateElement.textContent = currentDate;
+      tempElement.textContent = `${Math.round(main.temp)}°C`;
+      conditionElement.textContent = weather[0].description;
+      humidityElement.textContent = `${main.humidity}%`;
+      windSpeedElement.textContent = `${Math.round(wind.speed)} km/h`;
+    }
+
+    // Event listener for the search button
+    searchButton.addEventListener("click", () => {
+      const city = cityInput.value.trim();
+      if (city) {
+        fetchWeather(city);
+      } else {
+        alert("Please enter a city name");
+      }
+    });
+
+    // Optional: Fetch weather for a default city on page load
+    fetchWeather("New York");
+  </script>
+</body>
+</html>
